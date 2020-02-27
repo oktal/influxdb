@@ -872,7 +872,7 @@ messageTemplate: "Notification Rule: ${ r._notification_rule_name } triggered by
 // }
 
 func (s *NotificationRuleService) CreateNotificationRule(ctx context.Context, nr influxdb.NotificationRuleCreate, userID influxdb.ID) error {
-	var resp notificationRuleDecoder
+	var resp notificationRuleResponse
 	err := s.Client.
 		PostJSON(nr, prefixNotificationRules).
 		DecodeJSON(&resp).
@@ -882,13 +882,13 @@ func (s *NotificationRuleService) CreateNotificationRule(ctx context.Context, nr
 }
 
 func (s *NotificationRuleService) FindNotificationRuleByID(ctx context.Context, id influxdb.ID) (influxdb.NotificationRule, error) {
-	var resp notificationRuleDecoder
+	var resp notificationRuleResponse
 	err := s.Client.
 		Get(getNotificationRulesIDPath(id)).
 		DecodeJSON(&resp).
 		Do(ctx)
 
-	return resp.rule, err
+	return resp.NotificationRule, err
 }
 
 // FindNotificationRules returns a list of notification rules that match filter and the total count of matching notification rules.
@@ -916,8 +916,4 @@ func (s *NotificationRuleService) DeleteNotificationRule(ctx context.Context, id
 
 func getNotificationRulesIDPath(id influxdb.ID) string {
 	return path.Join(prefixNotificationRules, id.String())
-}
-
-type notificationRuleDecoder struct {
-	rule influxdb.NotificationRule
 }
