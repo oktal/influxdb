@@ -874,7 +874,7 @@ messageTemplate: "Notification Rule: ${ r._notification_rule_name } triggered by
 func (s *NotificationRuleService) CreateNotificationRule(ctx context.Context, nr influxdb.NotificationRuleCreate, userID influxdb.ID) error {
 	var resp notificationRuleResponse
 	err := s.Client.
-		PostJSON(nr, prefixNotificationRules).
+		PostJSON(httpc.BodyJSON(nr), prefixNotificationRules).
 		DecodeJSON(&resp).
 		Do(ctx)
 
@@ -918,15 +918,14 @@ func getNotificationRulesIDPath(id influxdb.ID) string {
 	return path.Join(prefixNotificationRules, id.String())
 }
 
-type notificationRuleDecoder struct {
-	rule influxdb.NotificationRule
-}
+// type notificationRuleEncoder struct {
+// 	nr   influxdb.NotificationRuleCreate
+// 	rule influxdb.NotificationRule
+// }
 
-func (n *notificationRuleDecoder) UnmarshalJSON(b []byte) error {
-	newRule, err := rule.UnmarshalJSON(b)
-	if err != nil {
-		return err
-	}
-	n.rule = newRule
-	return nil
-}
+// func (n *notificationRuleEncoder) MarshalJSON() ([]byte, error) {
+// 	b, err := json.Marshal(n.nr)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// }
