@@ -874,7 +874,7 @@ messageTemplate: "Notification Rule: ${ r._notification_rule_name } triggered by
 func (s *NotificationRuleService) CreateNotificationRule(ctx context.Context, nr influxdb.NotificationRuleCreate, userID influxdb.ID) error {
 	var resp notificationRuleResponse
 	err := s.Client.
-		PostJSON(httpc.BodyJSON(nr), prefixNotificationRules).
+		Post(httpc.BodyJSON(nr), prefixNotificationRules).
 		DecodeJSON(&resp).
 		Do(ctx)
 
