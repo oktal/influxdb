@@ -917,3 +917,16 @@ func (s *NotificationRuleService) DeleteNotificationRule(ctx context.Context, id
 func getNotificationRulesIDPath(id influxdb.ID) string {
 	return path.Join(prefixNotificationRules, id.String())
 }
+
+type notificationRuleDecoder struct {
+	rule influxdb.NotificationRule
+}
+
+func (n *notificationRuleDecoder) UnmarshalJSON(b []byte) error {
+	newRule, err := rule.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	n.rule = newRule
+	return nil
+}
