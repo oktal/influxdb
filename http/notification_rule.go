@@ -878,6 +878,12 @@ func (s *NotificationRuleService) CreateNotificationRule(ctx context.Context, nr
 		DecodeJSON(&resp).
 		Do(ctx)
 
+	nr.SetID(resp.NotificationRule.GetID())
+	nr.SetOwnerID(userID)
+	nr.SetCreatedAt(time.Now())
+	nr.SetUpdatedAt(time.Now())
+	nr.SetTaskID(resp.NotificationRule.GetTaskID())
+
 	return err
 }
 
