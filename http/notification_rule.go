@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var _ influxdb.NotificationRuleStore = (*NotificationRuleService)(nil)
+// var _ influxdb.NotificationRuleStore = (*NotificationRuleService)(nil)
 
 type statusDecode struct {
 	Status *influxdb.Status `json:"status"`
@@ -871,20 +871,20 @@ messageTemplate: "Notification Rule: ${ r._notification_rule_name } triggered by
 // 	// // MessageTemplate string                    `json:"messageTemplate"`
 // }
 
-func (s *NotificationRuleService) CreateNotificationRule(ctx context.Context, nr influxdb.NotificationRuleCreate, userID influxdb.ID) error {
+func (s *NotificationRuleService) CreateNotificationRule(ctx context.Context, nr influxdb.NotificationRuleCreate, userID influxdb.ID) (notificationRuleResponse, error) {
 	var resp notificationRuleResponse
 	err := s.Client.
 		Post(httpc.BodyJSON(nr), prefixNotificationRules).
 		DecodeJSON(&resp).
 		Do(ctx)
 
-	nr.SetID(resp.NotificationRule.GetID())
-	nr.SetOwnerID(userID)
-	nr.SetCreatedAt(time.Now())
-	nr.SetUpdatedAt(time.Now())
-	nr.SetTaskID(resp.NotificationRule.GetTaskID())
+	// nr.SetID(resp.NotificationRule.GetID())
+	// nr.SetOwnerID(userID)
+	// nr.SetCreatedAt(time.Now())
+	// nr.SetUpdatedAt(time.Now())
+	// nr.SetTaskID(resp.NotificationRule.GetTaskID())
 
-	return err
+	return resp, err
 }
 
 func (s *NotificationRuleService) FindNotificationRuleByID(ctx context.Context, id influxdb.ID) (influxdb.NotificationRule, error) {
