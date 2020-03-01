@@ -6,11 +6,13 @@ import (
 	"github.com/influxdata/flux/execute"
 	"github.com/influxdata/flux/plan"
 	"github.com/influxdata/flux/semantic"
+	"github.com/influxdata/flux/stdlib/influxdata/influxdb"
 	"github.com/influxdata/flux/stdlib/universe"
 )
 
 func init() {
 	plan.RegisterPhysicalRules(
+		FromStorageRule{},
 		PushDownRangeRule{},
 		PushDownFilterRule{},
 		PushDownGroupRule{},
@@ -18,6 +20,27 @@ func init() {
 		PushDownReadTagValuesRule{},
 		SortedPivotRule{},
 	)
+}
+
+type FromStorageRule struct{}
+
+func (rule FromStorageRule) Name() string {
+	return "influxdata/influxdb.FromStorageRule"
+}
+
+func (rule FromStorageRule) Pattern() plan.Pattern {
+	return plan.Pat(influxdb.FromKind)
+}
+
+func (rule FromStorageRule) Rewrite(node plan.Node) (plan.Node, bool, error) {
+	fromSpec := node.ProcedureSpec().(*influxdb.FromProcedureSpec)
+	if fromSpec.Host != nil || fromSpec.Org != nil {
+		return node, false, nil
+	}
+
+	return plan.CreateLogicalNode("fromStorage", &FromProcedureSpec{
+		Bucket: fromSpec.Bucket,
+	}), true, nil
 }
 
 // PushDownGroupRule pushes down a group operation to storage
@@ -74,11 +97,10 @@ func (rule PushDownRangeRule) Pattern() plan.Pattern {
 func (rule PushDownRangeRule) Rewrite(node plan.Node) (plan.Node, bool, error) {
 	fromNode := node.Predecessors()[0]
 	fromSpec := fromNode.ProcedureSpec().(*FromProcedureSpec)
-
 	rangeSpec := node.ProcedureSpec().(*universe.RangeProcedureSpec)
 	return plan.CreatePhysicalNode("ReadRange", &ReadRangePhysSpec{
-		Bucket:   fromSpec.Bucket,
-		BucketID: fromSpec.BucketID,
+		Bucket:   fromSpec.Bucket.Name,
+		BucketID: fromSpec.Bucket.ID,
 		Bounds:   rangeSpec.Bounds,
 	}), true, nil
 }
