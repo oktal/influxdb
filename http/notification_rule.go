@@ -887,6 +887,8 @@ func (s *NotificationRuleService) CreateNotificationRule(ctx context.Context, nr
 	return resp, err
 }
 
+var Test int
+
 func (s *NotificationRuleService) FindNotificationRuleByID(ctx context.Context, id influxdb.ID) (influxdb.NotificationRule, error) {
 	var resp notificationRuleResponse
 	err := s.Client.
